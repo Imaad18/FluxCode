@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -233,7 +232,8 @@ if prompt := st.chat_input("Ask me anything..."):
             response = model.generate_content(full_prompt)
             text = response.text
 
-            if "```
+            # Properly check for triple backticks inside string
+            if "```" in text:
                 st.markdown(text)
             else:
                 st.write(text)
