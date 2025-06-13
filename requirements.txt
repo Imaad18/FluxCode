@@ -1,3 +1,29 @@
+# CodeFlux - AI Code Assistant Requirements
+# Compatible with Python 3.8+
+
+# Core Framework
 streamlit>=1.28.0
+
+# Google Gemini AI
 google-generativeai>=0.3.0
+
+# Environment Variables
 python-dotenv>=1.0.0
+
+# Optional: Enhanced functionality
+# Uncomment if you want additional features
+
+# For better JSON handling (usually included in Python)
+orjson>=3.9.0
+
+# For advanced text processing
+regex>=2023.10.0
+
+# For better datetime handling
+python-dateutil>=2.8.0
+
+# For HTTP requests (if needed for API calls)
+requests>=2.31.0
+
+# For data validation (if you want to add input validation)
+pydantic>=2.0.0
