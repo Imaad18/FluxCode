@@ -1,65 +1,71 @@
-# app.py
 import streamlit as st
 import google.generativeai as genai
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
+# Load environment variables from .env (optional)
 load_dotenv()
 
-# Configure app layout
 st.set_page_config(page_title="Gemini Chatbot", layout="wide")
 
-# Sidebar configuration
+# Sidebar for API key and options
 with st.sidebar:
     st.header("Configuration")
     api_key = st.text_input("Enter Gemini API Key:", type="password")
-    code_generation_mode = st.checkbox("Enable Code Generation Mode")
+    code_gen_mode = st.checkbox("Enable Code Generation Mode")
     st.markdown("---")
-    st.caption("Enter your API key and toggle code generation mode as needed")
+    st.caption("Enter your API key to start chatting")
 
-# Initialize Gemini client
+# Initialize Gemini client if API key is provided
 if api_key or os.getenv("GOOGLE_API_KEY"):
     try:
         genai.configure(api_key=api_key or os.getenv("GOOGLE_API_KEY"))
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-2.0-flash')
     except Exception as e:
-        st.error(f"Error initializing Gemini: {e}")
+        st.error(f"Error initializing Gemini model: {e}")
+        st.stop()
 else:
     st.info("Please enter your Gemini API key in the sidebar to start chatting")
+    st.stop()
 
-# Initialize chat history
+# Initialize chat history in session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display chat messages
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# Display chat messages from history
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
 
-# Chat input and processing
-if prompt := st.chat_input("How can I help you today?"):
-    # Add user message to chat history
+# User input
+if prompt := st.chat_input("Ask me anything..."):
+    # Append user message
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Generate response
+    # Generate assistant response
     with st.chat_message("assistant"):
         try:
-            if code_generation_mode:
-                response = model.generate_content(
-                    f"Generate code for: {prompt}. Provide implementation with comments."
-                )
+            # Prepare prompt for code generation if enabled
+            if code_gen_mode:
+                full_prompt = f"Generate code for the following request with explanations:\n{prompt}"
             else:
-                response = model.generate_content(prompt)
-            
-            # Display response with code formatting
-            if "```
-                st.markdown(response.text)
+                full_prompt = prompt
+
+            response = model.generate_content(full_prompt)
+
+            # Extract text from response
+            text = response.text
+
+            # Detect if response contains code block markdown
+            if "```" in text:
+                st.markdown(text)
             else:
-                st.write(response.text)
-            
-            st.session_state.messages.append({"role": "assistant", "content": response.text})
+                st.write(text)
+
+            # Append assistant message to history
+            st.session_state.messages.append({"role": "assistant", "content": text})
+
         except Exception as e:
             st.error(f"Error generating response: {e}")
