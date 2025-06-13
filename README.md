@@ -1,3 +1,8 @@
+![scrnli_J1rt23wNQXUAUS](https://github.com/user-attachments/assets/875de0ff-97cd-42f6-ac08-9000a2824731)
+
+# Live Demo in Web App = 
+https://fluxcode-4lfrzx75adlgcctzv2fzyr.streamlit.app/
+
 # 🚀 CodeFlux - AI Code Assistant
 
 
