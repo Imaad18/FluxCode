@@ -20,9 +20,22 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-def create_logo_svg():
-    """Create the FluxCode logo as SVG"""
-    return """
+def get_logo_base64():
+    """Get the FluxCode logo as base64 string"""
+    # You'll need to replace this with your actual logo file
+    # For now, I'll create a placeholder that you can replace
+    logo_path = "fluxcode_logo.png"  # Replace with your actual logo path
+    
+    try:
+        with open(logo_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except FileNotFoundError:
+        # Fallback: Create a simple SVG logo if image file not found
+        return create_fallback_logo_svg()
+
+def create_fallback_logo_svg():
+    """Create a fallback SVG logo as base64"""
+    svg_content = """
     <svg width="120" height="120" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -40,41 +53,48 @@ def create_logo_svg():
         </defs>
         
         <!-- Main circular arc -->
-        <path d="M 50 100 A 50 50 0 1 1 150 100" 
-              stroke="url(#logoGradient)" 
-              stroke-width="8" 
-              fill="none" 
-              filter="url(#glow)"/>
-        
-        <!-- Inner arc layers -->
-        <path d="M 60 100 A 40 40 0 1 1 140 100" 
-              stroke="url(#logoGradient)" 
-              stroke-width="4" 
-              fill="none" 
-              opacity="0.7"/>
-        
-        <path d="M 70 100 A 30 30 0 1 1 130 100" 
-              stroke="url(#logoGradient)" 
-              stroke-width="2" 
-              fill="none" 
-              opacity="0.5"/>
+        <circle cx="100" cy="100" r="80" fill="none" stroke="url(#logoGradient)" stroke-width="8" filter="url(#glow)"/>
         
         <!-- Circuit lines -->
-        <g stroke="url(#logoGradient)" stroke-width="3" fill="none" filter="url(#glow)">
-            <!-- Top line -->
-            <path d="M 120 80 L 160 80 L 170 80" stroke-linecap="round"/>
-            <circle cx="175" cy="80" r="4" fill="url(#logoGradient)"/>
-            
-            <!-- Middle line -->
-            <path d="M 125 100 L 165 100 L 175 100" stroke-linecap="round"/>
-            <circle cx="180" cy="100" r="4" fill="url(#logoGradient)"/>
-            
-            <!-- Bottom line -->
-            <path d="M 120 120 L 160 120 L 170 120" stroke-linecap="round"/>
-            <circle cx="175" cy="120" r="4" fill="url(#logoGradient)"/>
+        <g stroke="url(#logoGradient)" stroke-width="4" fill="none" filter="url(#glow)">
+            <path d="M 60 100 L 140 100" stroke-linecap="round"/>
+            <path d="M 100 60 L 100 140" stroke-linecap="round"/>
+            <circle cx="100" cy="100" r="15" fill="url(#logoGradient)"/>
+        </g>
+        
+        <!-- Corner elements -->
+        <g stroke="url(#logoGradient)" stroke-width="3" fill="url(#logoGradient)">
+            <circle cx="60" cy="60" r="6"/>
+            <circle cx="140" cy="60" r="6"/>
+            <circle cx="60" cy="140" r="6"/>
+            <circle cx="140" cy="140" r="6"/>
         </g>
     </svg>
     """
+    return base64.b64encode(svg_content.encode()).decode()
+
+def create_sidebar_logo():
+    """Create the sidebar logo section with proper image handling"""
+    logo_base64 = get_logo_base64()
+    
+    # Determine if it's an image or SVG
+    if logo_base64.startswith('PHN2Zy'):  # SVG starts with '<svg' in base64
+        logo_html = f'<img src="data:image/svg+xml;base64,{logo_base64}" alt="FluxCode Logo" style="width: 120px; height: 120px;">'
+    else:
+        logo_html = f'<img src="data:image/png;base64,{logo_base64}" alt="FluxCode Logo" style="width: 120px; height: 120px; border-radius: 12px;">'
+    
+    st.sidebar.markdown(
+        f"""
+        <div class="sidebar-logo floating">
+            <div class="logo-svg">
+                {logo_html}
+            </div>
+            <div class="logo-text">FluxCode</div>
+            <div class="logo-tagline">AI Code Assistant</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 def inject_modern_css():
     """Inject modern, professional CSS styling with enhanced logo integration"""
@@ -552,22 +572,6 @@ def create_app_header():
         <div class="app-header">
             <h1 class="app-title">FluxCode</h1>
             <p class="app-subtitle">AI-Powered Code Assistant with Gemini</p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-def create_sidebar_logo():
-    """Create the sidebar logo section"""
-    logo_svg = create_logo_svg()
-    st.sidebar.markdown(
-        f"""
-        <div class="sidebar-logo floating">
-            <div class="logo-svg">
-                {logo_svg}
-            </div>
-            <div class="logo-text">FluxCode</div>
-            <div class="logo-tagline">AI Code Assistant</div>
         </div>
         """,
         unsafe_allow_html=True
