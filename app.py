@@ -560,7 +560,7 @@ def create_app_header():
 def create_sidebar_logo():
     """Create the sidebar logo section"""
     logo_svg = create_logo_svg()
-    st.markdown(
+    st.sidebar.markdown(
         f"""
         <div class="sidebar-logo floating">
             <div class="logo-svg">
