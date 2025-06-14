@@ -7,20 +7,77 @@ import datetime
 from typing import Dict, List
 import time
 import re
+import base64
 
 # Load environment variables
 load_dotenv()
 
 # Set page config with custom favicon and layout
 st.set_page_config(
-    page_title="CodeFlux - AI Code Assistant", 
+    page_title="FluxCode - AI Code Assistant", 
     page_icon="🚀",
     layout="wide", 
     initial_sidebar_state="expanded"
 )
 
+def create_logo_svg():
+    """Create the FluxCode logo as SVG"""
+    return """
+    <svg width="120" height="120" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#0099cc;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#667eea;stop-opacity:1" />
+            </linearGradient>
+            <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge> 
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+        </defs>
+        
+        <!-- Main circular arc -->
+        <path d="M 50 100 A 50 50 0 1 1 150 100" 
+              stroke="url(#logoGradient)" 
+              stroke-width="8" 
+              fill="none" 
+              filter="url(#glow)"/>
+        
+        <!-- Inner arc layers -->
+        <path d="M 60 100 A 40 40 0 1 1 140 100" 
+              stroke="url(#logoGradient)" 
+              stroke-width="4" 
+              fill="none" 
+              opacity="0.7"/>
+        
+        <path d="M 70 100 A 30 30 0 1 1 130 100" 
+              stroke="url(#logoGradient)" 
+              stroke-width="2" 
+              fill="none" 
+              opacity="0.5"/>
+        
+        <!-- Circuit lines -->
+        <g stroke="url(#logoGradient)" stroke-width="3" fill="none" filter="url(#glow)">
+            <!-- Top line -->
+            <path d="M 120 80 L 160 80 L 170 80" stroke-linecap="round"/>
+            <circle cx="175" cy="80" r="4" fill="url(#logoGradient)"/>
+            
+            <!-- Middle line -->
+            <path d="M 125 100 L 165 100 L 175 100" stroke-linecap="round"/>
+            <circle cx="180" cy="100" r="4" fill="url(#logoGradient)"/>
+            
+            <!-- Bottom line -->
+            <path d="M 120 120 L 160 120 L 170 120" stroke-linecap="round"/>
+            <circle cx="175" cy="120" r="4" fill="url(#logoGradient)"/>
+        </g>
+    </svg>
+    """
+
 def inject_modern_css():
-    """Inject modern, professional CSS styling"""
+    """Inject modern, professional CSS styling with enhanced logo integration"""
     st.markdown(
         """
         <style>
@@ -28,22 +85,24 @@ def inject_modern_css():
         
         /* Root variables for consistent theming */
         :root {
-            --primary-bg: #0f0f23;
-            --secondary-bg: #1a1a2e;
-            --accent-bg: #16213e;
+            --primary-bg: #0a0a15;
+            --secondary-bg: #151528;
+            --accent-bg: #1a1a35;
             --primary-text: #ffffff;
             --secondary-text: #a0aec0;
             --accent-color: #00d4ff;
+            --accent-secondary: #667eea;
             --success-color: #48bb78;
             --warning-color: #ed8936;
             --error-color: #f56565;
             --border-color: #2d3748;
             --hover-bg: #2d3748;
+            --glow-color: rgba(0, 212, 255, 0.3);
         }
         
         /* Global app styling */
         .stApp {
-            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+            background: radial-gradient(ellipse at center, var(--secondary-bg) 0%, var(--primary-bg) 100%);
             color: var(--primary-text);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
@@ -55,44 +114,134 @@ def inject_modern_css():
         
         /* Custom header */
         .app-header {
-            background: linear-gradient(90deg, var(--accent-color), #667eea);
-            padding: 1rem 2rem;
-            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
             margin-bottom: 2rem;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 8px 32px var(--glow-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
         
         .app-title {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 700;
             margin: 0;
-            background: linear-gradient(45deg, #ffffff, #e2e8f0);
+            background: linear-gradient(45deg, #ffffff, #e2e8f0, #ffffff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            position: relative;
+            z-index: 1;
         }
         
         .app-subtitle {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             margin: 0.5rem 0 0 0;
-            color: #e2e8f0;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 400;
+            position: relative;
+            z-index: 1;
         }
         
         /* Sidebar styling */
         [data-testid="stSidebar"] {
             background: linear-gradient(180deg, var(--secondary-bg) 0%, var(--accent-bg) 100%);
-            border-right: 1px solid var(--border-color);
+            border-right: 2px solid var(--border-color);
+        }
+        
+        /* Logo container in sidebar */
+        .sidebar-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem 1.5rem 1rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(102, 126, 234, 0.05));
+            border-radius: 16px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            backdrop-filter: blur(20px);
+            position: relative;
+        }
+        
+        .sidebar-logo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            border-radius: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-logo:hover::before {
+            opacity: 1;
+        }
+        
+        .logo-svg {
+            transition: transform 0.3s ease, filter 0.3s ease;
+            filter: drop-shadow(0 4px 12px var(--glow-color));
+        }
+        
+        .logo-svg:hover {
+            transform: scale(1.05) rotate(2deg);
+            filter: drop-shadow(0 6px 20px var(--glow-color));
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 1rem;
+            background: linear-gradient(45deg, var(--accent-color), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo-tagline {
+            font-size: 0.85rem;
+            color: var(--secondary-text);
+            margin-top: 0.25rem;
+            text-align: center;
+            font-weight: 400;
         }
         
         .sidebar-section {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 12px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
             border: 1px solid var(--border-color);
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-section:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
         }
         
         .section-title {
@@ -111,20 +260,21 @@ def inject_modern_css():
         }
         
         .stChatMessage > div {
-            border-radius: 16px !important;
-            padding: 1.2rem !important;
-            margin-bottom: 0.8rem !important;
+            border-radius: 20px !important;
+            padding: 1.5rem !important;
+            margin-bottom: 1rem !important;
             max-width: 85% !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         /* User message */
         .stChatMessage[data-testid="stChatMessage"][data-role="user"] > div {
-            background: linear-gradient(135deg, var(--accent-color), #667eea) !important;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary)) !important;
             color: white !important;
             margin-left: auto !important;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px var(--glow-color);
         }
         
         /* Assistant message */
@@ -138,28 +288,46 @@ def inject_modern_css():
         /* Code blocks */
         pre {
             background: linear-gradient(135deg, #1a202c, #2d3748) !important;
-            border: 1px solid var(--border-color) !important;
+            border: 1px solid var(--accent-color) !important;
             border-radius: 12px !important;
             padding: 1.5rem !important;
             overflow-x: auto !important;
             font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        pre::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-secondary));
         }
         
         code {
-            background: rgba(0, 212, 255, 0.1) !important;
+            background: rgba(0, 212, 255, 0.15) !important;
             color: var(--accent-color) !important;
-            padding: 0.2rem 0.4rem !important;
-            border-radius: 4px !important;
+            padding: 0.3rem 0.5rem !important;
+            border-radius: 6px !important;
             font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+            border: 1px solid rgba(0, 212, 255, 0.3);
         }
         
         /* Input styling */
         .stChatInput > div {
-            background: linear-gradient(90deg, var(--secondary-bg), var(--accent-bg)) !important;
-            border-radius: 24px !important;
-            border: 1px solid var(--border-color) !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, var(--secondary-bg), var(--accent-bg)) !important;
+            border-radius: 28px !important;
+            border: 2px solid var(--border-color) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .stChatInput > div:focus-within {
+            border-color: var(--accent-color) !important;
+            box-shadow: 0 8px 32px var(--glow-color) !important;
         }
         
         .stChatInput input {
@@ -171,50 +339,80 @@ def inject_modern_css():
         
         /* Button styling */
         .stButton > button {
-            background: linear-gradient(90deg, var(--accent-color), #667eea) !important;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary)) !important;
             color: white !important;
             border: none !important;
             border-radius: 12px !important;
             padding: 0.75rem 1.5rem !important;
             font-weight: 600 !important;
             transition: all 0.3s ease !important;
-            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stButton > button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
         }
         
         .stButton > button:hover {
             transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4) !important;
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.5) !important;
+        }
+        
+        .stButton > button:hover::before {
+            left: 100%;
         }
         
         /* Text input styling */
         .stTextInput > div > div > input {
             background: var(--secondary-bg) !important;
             color: var(--primary-text) !important;
-            border: 1px solid var(--border-color) !important;
-            border-radius: 8px !important;
+            border: 2px solid var(--border-color) !important;
+            border-radius: 10px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .stTextInput > div > div > input:focus {
+            border-color: var(--accent-color) !important;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1) !important;
         }
         
         /* Select box styling */
         .stSelectbox > div > div {
             background: var(--secondary-bg) !important;
             color: var(--primary-text) !important;
-            border: 1px solid var(--border-color) !important;
-            border-radius: 8px !important;
+            border: 2px solid var(--border-color) !important;
+            border-radius: 10px !important;
         }
         
         /* Metrics styling */
         [data-testid="metric-container"] {
-            background: rgba(255, 255, 255, 0.05) !important;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(102, 126, 234, 0.05)) !important;
             border: 1px solid var(--border-color) !important;
             border-radius: 12px !important;
             padding: 1rem !important;
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        [data-testid="metric-container"]:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
         }
         
         /* Success/info/warning/error messages */
         .stSuccess, .stInfo, .stWarning, .stError {
             border-radius: 12px !important;
             backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
         
         /* Expander styling */
@@ -237,6 +435,7 @@ def inject_modern_css():
         .history-item:hover {
             background: rgba(255, 255, 255, 0.08);
             transform: translateX(4px);
+            border-color: var(--accent-color);
         }
         
         /* Scrollbar styling */
@@ -251,12 +450,12 @@ def inject_modern_css():
         }
         
         ::-webkit-scrollbar-thumb {
-            background: var(--accent-color);
+            background: linear-gradient(45deg, var(--accent-color), var(--accent-secondary));
             border-radius: 4px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: #0099cc;
+            background: linear-gradient(45deg, #0099cc, #5a67d8);
         }
         
         /* Animation for loading */
@@ -266,8 +465,17 @@ def inject_modern_css():
             100% { opacity: 0.6; }
         }
         
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        
         .loading {
             animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
         }
         
         /* Stats container */
@@ -285,6 +493,12 @@ def inject_modern_css():
             padding: 1rem;
             text-align: center;
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
         }
         
         .stat-value {
@@ -298,6 +512,34 @@ def inject_modern_css():
             color: var(--secondary-text);
             margin-top: 0.25rem;
         }
+        
+        /* Message actions */
+        .message-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        .message-actions:hover {
+            opacity: 1;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-button:hover {
+            background: var(--accent-color);
+            color: white;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -308,8 +550,24 @@ def create_app_header():
     st.markdown(
         """
         <div class="app-header">
-            <h1 class="app-title">🚀 CodeFlux</h1>
+            <h1 class="app-title">FluxCode</h1>
             <p class="app-subtitle">AI-Powered Code Assistant with Gemini</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def create_sidebar_logo():
+    """Create the sidebar logo section"""
+    logo_svg = create_logo_svg()
+    st.markdown(
+        f"""
+        <div class="sidebar-logo floating">
+            <div class="logo-svg">
+                {logo_svg}
+            </div>
+            <div class="logo-text">FluxCode</div>
+            <div class="logo-tagline">AI Code Assistant</div>
         </div>
         """,
         unsafe_allow_html=True
@@ -378,8 +636,11 @@ def export_conversation():
     return json.dumps(export_data, indent=2)
 
 def create_sidebar():
-    """Create enhanced sidebar with multiple sections"""
+    """Create enhanced sidebar with logo and multiple sections"""
     with st.sidebar:
+        # Logo Section
+        create_sidebar_logo()
+        
         # API Configuration Section
         st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
         st.markdown('<div class="section-title">🔧 Configuration</div>', unsafe_allow_html=True)
@@ -488,7 +749,7 @@ def create_sidebar():
                 st.download_button(
                     label="📁 Download JSON",
                     data=export_data,
-                    file_name=f"codeflux_conversation_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                    file_name=f"fluxcode_conversation_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
                     mime="application/json",
                     use_container_width=True
                 )
@@ -517,128 +778,132 @@ def format_response_with_mode(prompt: str, code_gen_mode: bool, explain_mode: bo
     style_instructions = {
         "Concise": "Keep responses brief and to the point",
         "Balanced": "Provide moderate detail with good examples",
-        "Detailed": "Give comprehensive explanations with multiple examples"
+        "Detailed": "Provide comprehensive explanations with multiple examples"
     }
     
-    prefix_parts.append(style_instructions[response_style])
-    
     if prefix_parts:
-        return f"{'. '.join(prefix_parts)}.\n\nUser request: {prompt}"
-    
+        prefix = "You are an expert AI coding assistant. " + ", ".join(prefix_parts) + "."
+        if response_style in style_instructions:
+            prefix += " " + style_instructions[response_style] + "."
+        return prefix + "\n\n" + prompt
     return prompt
 
-def display_chat_message(message: Dict[str, str], message_index: int):
-    """Display a chat message with enhanced formatting"""
+def extract_code_blocks(text: str) -> List[Dict[str, str]]:
+    """Extract code blocks from markdown text"""
+    pattern = r"```(?P<language>\w+)?\n(?P<code>.*?)\n```"
+    matches = re.finditer(pattern, text, re.DOTALL)
+    return [match.groupdict() for match in matches]
+
+def display_message(message: Dict[str, str]):
+    """Display a message in the chat with proper formatting"""
     with st.chat_message(message["role"]):
         content = message["content"]
         
-        # Check if message contains code blocks
-        if "```" in content:
-            st.markdown(content)
+        # Check for code blocks
+        code_blocks = extract_code_blocks(content)
+        if code_blocks:
+            # Split content by code blocks to handle text and code separately
+            parts = re.split(r"```\w*\n.*?\n```", content, flags=re.DOTALL)
+            
+            for i, part in enumerate(parts):
+                if part.strip():
+                    st.markdown(part)
+                if i < len(code_blocks):
+                    code_block = code_blocks[i]
+                    language = code_block.get("language", "")
+                    st.code(code_block["code"], language=language)
         else:
-            st.write(content)
+            st.markdown(content)
         
         # Add message actions
         if message["role"] == "assistant":
-            col1, col2, col3, col4 = st.columns([1, 1, 1, 6])
-            
-            with col1:
-                if st.button("👍", key=f"like_{message_index}", help="Like this response"):
-                    st.toast("Response liked! 👍")
-            
-            with col2:
-                if st.button("👎", key=f"dislike_{message_index}", help="Dislike this response"):
-                    st.toast("Feedback noted 👎")
-            
-            with col3:
-                if st.button("📋", key=f"copy_{message_index}", help="Copy to clipboard"):
-                    st.toast("Copied to clipboard! 📋")
+            with st.expander("Message Actions"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("📋 Copy", key=f"copy_{message['id']}"):
+                        st.session_state.clipboard = content
+                        st.toast("Copied to clipboard!")
+                with col2:
+                    if st.button("🔁 Regenerate", key=f"regenerate_{message['id']}"):
+                        # Implement regeneration logic here
+                        pass
+
+def generate_response(prompt: str, api_key: str) -> str:
+    """Generate a response from Gemini API"""
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel(st.session_state.current_model)
+        
+        # Format prompt with selected modes
+        formatted_prompt = format_response_with_mode(
+            prompt,
+            st.session_state.code_gen_mode,
+            st.session_state.explain_mode,
+            st.session_state.debug_mode,
+            st.session_state.response_style
+        )
+        
+        response = model.generate_content(formatted_prompt)
+        return response.text
+    except Exception as e:
+        st.error(f"Error generating response: {str(e)}")
+        return None
 
 def main():
     """Main application function"""
-    # Initialize
+    # Initialize the app
     inject_modern_css()
-    initialize_session_state()
     create_app_header()
+    initialize_session_state()
     
     # Create sidebar and get settings
     api_key, code_gen_mode, explain_mode, debug_mode, response_style = create_sidebar()
-    
-    # Initialize Gemini
-    effective_api_key = api_key or os.getenv("GOOGLE_API_KEY")
-    if not effective_api_key:
-        st.error("🔑 Please enter your Gemini API key in the sidebar to continue.")
-        st.info("""
-        **How to get your API key:**
-        1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
-        2. Create a new API key
-        3. Copy and paste it in the sidebar
-        """)
-        st.stop()
-    
-    try:
-        genai.configure(api_key=effective_api_key)
-        model = genai.GenerativeModel(st.session_state.current_model)
-    except Exception as e:
-        st.error(f"❌ Error initializing Gemini model: {e}")
-        st.stop()
+    st.session_state.code_gen_mode = code_gen_mode
+    st.session_state.explain_mode = explain_mode
+    st.session_state.debug_mode = debug_mode
+    st.session_state.response_style = response_style
     
     # Display chat messages
-    for i, message in enumerate(st.session_state.messages):
-        display_chat_message(message, i)
+    for message in st.session_state.messages:
+        display_message(message)
     
-    # Chat input and processing
-    if prompt := st.chat_input("💬 Ask me anything about code..."):
-        # Add user message
-        st.session_state.messages.append({"role": "user", "content": prompt})
+    # Chat input
+    if prompt := st.chat_input("Ask me anything about coding..."):
+        if not api_key:
+            st.error("Please enter your Gemini API key in the sidebar")
+            return
         
+        # Add user message to chat history
+        user_message = {
+            "role": "user",
+            "content": prompt,
+            "id": f"user_{len(st.session_state.messages)}",
+            "timestamp": datetime.datetime.now().isoformat()
+        }
+        st.session_state.messages.append(user_message)
+        
+        # Display user message
         with st.chat_message("user"):
             st.markdown(prompt)
         
-        # Generate response
-        with st.chat_message("assistant"):
-            with st.spinner("🤔 Thinking..."):
-                try:
-                    # Format prompt based on modes
-                    formatted_prompt = format_response_with_mode(
-                        prompt, code_gen_mode, explain_mode, debug_mode, response_style
-                    )
-                    
-                    # Generate response
-                    response = model.generate_content(formatted_prompt)
-                    response_text = response.text
-                    
-                    # Display response
-                    if "```" in response_text:
-                        st.markdown(response_text)
-                    else:
-                        st.write(response_text)
-                    
-                    # Add to message history
-                    st.session_state.messages.append({
-                        "role": "assistant", 
-                        "content": response_text
-                    })
-                    
-                    # Auto-save if enabled
-                    if st.session_state.user_preferences["auto_save"]:
-                        save_conversation()
-                    
-                except Exception as e:
-                    st.error(f"❌ Error generating response: {e}")
-                    st.info("Please check your API key and try again.")
-    
-    # Footer
-    st.markdown("---")
-    st.markdown(
-        """
-        <div style="text-align: center; padding: 1rem; color: #a0aec0; font-size: 0.9rem;">
-            <strong>CodeFlux</strong> - Powered by <strong>Gemini AI</strong> & <strong>Streamlit</strong><br>
-            Built with ❤️ for developers by developers
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        # Generate and display assistant response
+        with st.spinner("Generating response..."):
+            response = generate_response(prompt, api_key)
+            if response:
+                assistant_message = {
+                    "role": "assistant",
+                    "content": response,
+                    "id": f"assistant_{len(st.session_state.messages)}",
+                    "timestamp": datetime.datetime.now().isoformat()
+                }
+                st.session_state.messages.append(assistant_message)
+                
+                # Display assistant message
+                display_message(assistant_message)
+                
+                # Update stats
+                st.session_state.message_count += 1
+                st.rerun()
 
 if __name__ == "__main__":
     main()
