@@ -580,7 +580,7 @@ def initialize_session_state():
         "total_tokens": 0,
         "session_start": datetime.datetime.now(),
         "message_count": 0,
-        "current_model": "gemini-2.0-flash",
+        "current_model": "gemini-pro",
         "conversation_title": "New Conversation",
         "saved_conversations": {},
         "current_conversation_id": None,
@@ -588,7 +588,11 @@ def initialize_session_state():
             "code_theme": "dark",
             "response_style": "balanced",
             "auto_save": True
-        }
+        },
+        "code_gen_mode": False,
+        "explain_mode": False,
+        "debug_mode": False,
+        "response_style": "Balanced"
     }
     
     for key, value in defaults.items():
@@ -605,9 +609,11 @@ def save_conversation():
         "title": st.session_state.conversation_title,
         "messages": st.session_state.messages.copy(),
         "timestamp": datetime.datetime.now().isoformat(),
-        "message_count": len(st.session_state.messages)
+        "message_count": len(st.session_state.messages),
+        "model": st.session_state.current_model
     }
     st.session_state.current_conversation_id = conv_id
+    st.toast("Conversation saved successfully!")
 
 def load_conversation(conv_id):
     """Load a saved conversation"""
@@ -616,6 +622,7 @@ def load_conversation(conv_id):
         st.session_state.messages = conv["messages"]
         st.session_state.conversation_title = conv["title"]
         st.session_state.current_conversation_id = conv_id
+        st.session_state.current_model = conv.get("model", "gemini-pro")
         st.rerun()
 
 def export_conversation():
@@ -627,6 +634,7 @@ def export_conversation():
         "title": st.session_state.conversation_title,
         "timestamp": datetime.datetime.now().isoformat(),
         "messages": st.session_state.messages,
+        "model": st.session_state.current_model,
         "stats": {
             "message_count": len(st.session_state.messages),
             "session_duration": str(datetime.datetime.now() - st.session_state.session_start)
@@ -648,13 +656,14 @@ def create_sidebar():
         api_key = st.text_input(
             "Gemini API Key:",
             type="password",
-            help="Enter your Google Gemini API key"
+            help="Enter your Google Gemini API key",
+            value=os.getenv("GEMINI_API_KEY", "")
         )
         
         model_options = [
-            "gemini-2.0-flash",
-            "gemini-1.5-pro",
-            "gemini-1.5-flash"
+            "gemini-pro",
+            "gemini-pro-vision",
+            "gemini-1.5-pro-latest"
         ]
         selected_model = st.selectbox(
             "Model:",
@@ -669,15 +678,26 @@ def create_sidebar():
         st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
         st.markdown('<div class="section-title">⚡ Features</div>', unsafe_allow_html=True)
         
-        code_gen_mode = st.checkbox("🔨 Code Generation Mode", help="Optimized for code generation")
-        explain_mode = st.checkbox("📚 Explanation Mode", help="Detailed explanations")
-        debug_mode = st.checkbox("🐛 Debug Mode", help="Help debug code issues")
+        code_gen_mode = st.checkbox("🔨 Code Generation Mode", 
+                                  value=st.session_state.code_gen_mode,
+                                  help="Optimized for code generation")
+        explain_mode = st.checkbox("📚 Explanation Mode", 
+                                 value=st.session_state.explain_mode,
+                                 help="Detailed explanations")
+        debug_mode = st.checkbox("🐛 Debug Mode", 
+                               value=st.session_state.debug_mode,
+                               help="Help debug code issues")
         
         response_style = st.radio(
             "Response Style:",
             ["Concise", "Balanced", "Detailed"],
-            index=1
+            index=["Concise", "Balanced", "Detailed"].index(st.session_state.response_style)
         )
+        
+        st.session_state.code_gen_mode = code_gen_mode
+        st.session_state.explain_mode = explain_mode
+        st.session_state.debug_mode = debug_mode
+        st.session_state.response_style = response_style
         
         st.markdown('</div>', unsafe_allow_html=True)
         
@@ -709,7 +729,6 @@ def create_sidebar():
         with col1:
             if st.button("💾 Save", use_container_width=True):
                 save_conversation()
-                st.success("Saved!")
         
         with col2:
             if st.button("🆕 New", use_container_width=True):
@@ -735,6 +754,8 @@ def create_sidebar():
                 with col2:
                     if st.button("🗑️", key=f"del_{conv_id}"):
                         del st.session_state.saved_conversations[conv_id]
+                        if st.session_state.current_conversation_id == conv_id:
+                            st.session_state.current_conversation_id = None
                         st.rerun()
         
         st.markdown('</div>', unsafe_allow_html=True)
@@ -760,19 +781,19 @@ def create_sidebar():
             
             st.markdown('</div>', unsafe_allow_html=True)
     
-    return api_key, code_gen_mode, explain_mode, debug_mode, response_style
+    return api_key
 
-def format_response_with_mode(prompt: str, code_gen_mode: bool, explain_mode: bool, debug_mode: bool, response_style: str) -> str:
+def format_response_with_mode(prompt: str) -> str:
     """Format the prompt based on selected modes"""
     prefix_parts = []
     
-    if code_gen_mode:
+    if st.session_state.code_gen_mode:
         prefix_parts.append("Generate clean, well-commented code")
     
-    if explain_mode:
+    if st.session_state.explain_mode:
         prefix_parts.append("Provide detailed explanations")
     
-    if debug_mode:
+    if st.session_state.debug_mode:
         prefix_parts.append("Help debug and identify issues")
     
     style_instructions = {
@@ -783,8 +804,8 @@ def format_response_with_mode(prompt: str, code_gen_mode: bool, explain_mode: bo
     
     if prefix_parts:
         prefix = "You are an expert AI coding assistant. " + ", ".join(prefix_parts) + "."
-        if response_style in style_instructions:
-            prefix += " " + style_instructions[response_style] + "."
+        if st.session_state.response_style in style_instructions:
+            prefix += " " + style_instructions[st.session_state.response_style] + "."
         return prefix + "\n\n" + prompt
     return prompt
 
@@ -835,13 +856,7 @@ def generate_response(prompt: str, api_key: str) -> str:
         model = genai.GenerativeModel(st.session_state.current_model)
         
         # Format prompt with selected modes
-        formatted_prompt = format_response_with_mode(
-            prompt,
-            st.session_state.code_gen_mode,
-            st.session_state.explain_mode,
-            st.session_state.debug_mode,
-            st.session_state.response_style
-        )
+        formatted_prompt = format_response_with_mode(prompt)
         
         response = model.generate_content(formatted_prompt)
         return response.text
@@ -857,11 +872,7 @@ def main():
     initialize_session_state()
     
     # Create sidebar and get settings
-    api_key, code_gen_mode, explain_mode, debug_mode, response_style = create_sidebar()
-    st.session_state.code_gen_mode = code_gen_mode
-    st.session_state.explain_mode = explain_mode
-    st.session_state.debug_mode = debug_mode
-    st.session_state.response_style = response_style
+    api_key = create_sidebar()
     
     # Display chat messages
     for message in st.session_state.messages:
