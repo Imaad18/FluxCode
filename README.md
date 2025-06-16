@@ -1,4 +1,5 @@
-![scrnli_J1rt23wNQXUAUS](https://github.com/user-attachments/assets/875de0ff-97cd-42f6-ac08-9000a2824731)
+![scrnli_gp83L5qxSp64Bc](https://github.com/user-attachments/assets/210ed1ec-03b7-49d1-97ea-e991b92ec4a3)
+
 
 # Live Demo in Web App = 
 https://fluxcode-4lfrzx75adlgcctzv2fzyr.streamlit.app/
