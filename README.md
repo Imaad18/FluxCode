@@ -1,305 +1,266 @@
-![scrnli_gp83L5qxSp64Bc](https://github.com/user-attachments/assets/210ed1ec-03b7-49d1-97ea-e991b92ec4a3)
+<div align="center">
 
+![FluxCode Banner](https://github.com/user-attachments/assets/210ed1ec-03b7-49d1-97ea-e991b92ec4a3)
 
-# Live Demo in Web App = 
-https://fluxcode-4lfrzx75adlgcctzv2fzyr.streamlit.app/
+# FluxCode — AI Code Assistant
 
-# 🚀 CodeFlux - AI Code Assistant
+**An AI-powered coding companion built on Google Gemini**
 
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)](https://python.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.28%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io)
+[![Gemini](https://img.shields.io/badge/Powered%20by-Gemini%20AI-4285F4?logo=google&logoColor=white)](https://aistudio.google.com)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit%20Cloud-FF4B4B?logo=streamlit)](https://fluxcode-4lfrzx75adlgcctzv2fzyr.streamlit.app/)
 
+[**Try Live Demo →**](https://fluxcode-4lfrzx75adlgcctzv2fzyr.streamlit.app/)
 
-## 📋 Table of Contents
+</div>
+
+---
+
+## Table of Contents
 
 - [Overview](#-overview)
 - [Features](#-features)
 - [Installation](#-installation)
 - [Configuration](#-configuration)
 - [Usage](#-usage)
-- [Screenshots](#-screenshots)
 - [API Reference](#-api-reference)
 - [Contributing](#-contributing)
 - [Troubleshooting](#-troubleshooting)
 - [License](#-license)
 
-## 🌟 Overview
+---
 
-* CodeFlux is a sophisticated AI-powered code assistant that leverages Google's Gemini AI to help developers with coding tasks, debugging, explanations, and more. Built with a modern, professional interface using Streamlit, it offers an intuitive chat-based experience for all your programming needs.
+## Overview
 
-### ✨ Why CodeFlux?
+FluxCode is a sophisticated AI-powered code assistant that leverages Google's Gemini AI to help developers with coding tasks, debugging, explanations, and more. Built with a modern, professional dark-theme interface using Streamlit, it offers an intuitive chat-based experience for all your programming needs.
 
-- **🎨 Modern UI**: Professional dark theme with smooth animations
-- **🧠 Smart AI**: Powered by Google's latest Gemini models
-- **💾 Persistent Sessions**: Save and manage your conversations
-- **🔧 Multiple Modes**: Code generation, debugging, and explanation modes
-- **📊 Analytics**: Track your usage with built-in statistics
-- **🚀 Fast & Responsive**: Optimized for smooth user experience
+### Why FluxCode?
 
-## 🚀 Features
+| Feature | Description |
+|---|---|
+| **Modern UI** | Professional dark theme with smooth animations and glassmorphism effects |
+| **Smart AI** | Powered by Google's latest Gemini 2.0 Flash and 1.5 Pro models |
+| **Persistent Sessions** | Save, load, and export conversations with full metadata |
+| **Multiple Modes** | Combine code generation, debugging, and explanation modes |
+| **Session Analytics** | Track messages and session duration in real time |
+| **Multi-turn Chat** | Full conversation history passed to the model for context-aware responses |
 
-### Core Functionality
-- **Multi-Model Support**: Choose between Gemini 2.0 Flash, 1.5 Pro, and 1.5 Flash
-- **Smart Chat Interface**: Clean, modern chat UI with message reactions
-- **Code Highlighting**: Syntax highlighting for all major programming languages
-- **Export Capabilities**: Download conversations as JSON files
+---
+
+## Features
 
 ### AI Modes
-- **🔨 Code Generation Mode**: Optimized for generating clean, commented code
-- **📚 Explanation Mode**: Detailed explanations of code concepts
-- **🐛 Debug Mode**: Specialized debugging assistance
-- **⚡ Response Styles**: Choose between Concise, Balanced, or Detailed responses
+- **Code Generation Mode** — Generates clean, well-commented code for any task
+- **Explanation Mode** — Detailed conceptual breakdowns for learning
+- **Debug Mode** — Targeted debugging assistance with issue identification
+- **Response Styles** — Choose Concise, Balanced, or Detailed verbosity
+
+### Model Support
+| Model | Best For |
+|---|---|
+| `gemini-2.0-flash` | Fast responses, everyday coding tasks |
+| `gemini-1.5-pro` | Complex reasoning, large context windows |
+| `gemini-1.5-flash` | Balanced speed and capability |
 
 ### Session Management
-- **💾 Save Conversations**: Persist your chat sessions with custom titles
-- **📊 Usage Statistics**: Track messages, session duration, and more
-- **🔄 Auto-Save**: Automatically save important conversations
-- **📤 Export/Import**: Backup and share your conversations
+- Save conversations with custom titles
+- Load any previously saved session
+- Export conversations as JSON
+- Auto-save support
 
-### Professional Features
-- **🎯 Customizable Interface**: Personalize your coding environment
-- **⚙️ Advanced Settings**: Fine-tune AI behavior to your preferences
-- **📱 Responsive Design**: Works seamlessly on desktop and mobile
-- **🔐 Secure**: API keys are handled securely with environment variables
+---
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
-- Python 3.8 or higher
-- Google Gemini API key ([Get one here](https://aistudio.google.com/app/apikey))
+- Python 3.8+
+- Google Gemini API key — [get one free at Google AI Studio](https://aistudio.google.com/app/apikey)
 
 ### Quick Start
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/codeflux.git
-   cd codeflux
-   ```
+```bash
+# 1. Clone the repository
+git clone https://github.com/Imaad18/FluxCode.git
+cd FluxCode
 
-2. **Create virtual environment**
-   ```bash
-   python -m venv codeflux_env
-   source codeflux_env/bin/activate  # On Windows: codeflux_env\Scripts\activate
-   ```
+# 2. Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+# 3. Install dependencies
+pip install -r requirements.txt
 
-4. **Set up environment variables**
-   ```bash
-   # Create .env file
-   echo "GOOGLE_API_KEY=your_gemini_api_key_here" > .env
-   ```
+# 4. Configure your API key
+echo "GOOGLE_API_KEY=your_gemini_api_key_here" > .env
 
-5. **Run the application**
-   ```bash
-   streamlit run app.py
-   ```
+# 5. Run the app
+streamlit run app.py
+```
 
-6. **Open your browser** and navigate to `http://localhost:8501`
+Then open **http://localhost:8501** in your browser.
 
-## ⚙️ Configuration
+---
 
-### Environment Variables
+## Configuration
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the project root:
 
 ```env
 # Required
 GOOGLE_API_KEY=your_gemini_api_key_here
 
 # Optional
-STREAMLIT_THEME=dark
 DEFAULT_MODEL=gemini-2.0-flash
 AUTO_SAVE_ENABLED=true
 ```
 
-### API Key Setup
+### Getting an API Key
 
-1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Sign in with your Google account
-3. Create a new API key
-4. Copy the key and add it to your `.env` file or enter it in the sidebar
+3. Click **Create API key**
+4. Paste the key into your `.env` file, or enter it directly in the sidebar
 
-## 💻 Usage
+---
 
-### Basic Usage
+## Usage
 
-1. **Start the Application**
-   ```bash
-   streamlit run app.py
-   ```
+### Basic Workflow
 
-2. **Enter API Key**: Add your Gemini API key in the sidebar
+1. Launch the app with `streamlit run app.py`
+2. Enter your Gemini API key in the sidebar
+3. Select your AI mode(s) and response style
+4. Type your question in the chat input and press Enter
 
-3. **Choose Your Mode**:
-   - Enable **Code Generation Mode** for programming tasks
-   - Use **Debug Mode** for troubleshooting code issues
-   - Turn on **Explanation Mode** for learning concepts
+### Conversation Management
 
-4. **Start Chatting**: Type your questions in the chat input
+| Action | How To |
+|---|---|
+| Save | Click **💾 Save** in the sidebar |
+| Load | Click any saved conversation title |
+| Delete | Click **🗑️** next to the conversation |
+| Export | Click **📁 Download JSON** |
+| New chat | Click **🆕 New** (auto-saves if enabled) |
 
-### Advanced Features
+### Combining Modes
 
-#### Conversation Management
-- **Save**: Click the "💾 Save" button to save current conversation
-- **Load**: Click on any saved conversation to load it
-- **Export**: Use "📁 Download JSON" to export conversations
-- **New**: Start fresh with the "🆕 New" button
+You can enable multiple modes simultaneously for richer responses — e.g., enable both **Code Generation** and **Explanation** to get code with a walkthrough, or combine **Debug** and **Explanation** for annotated bug analysis.
 
-#### Response Customization
-- **Model Selection**: Choose between different Gemini models
-- **Response Style**: Select Concise, Balanced, or Detailed responses
-- **Multiple Modes**: Combine different AI modes for optimal results
+---
 
-## 📸 Screenshots
+## API Reference
 
-### Main Interface
-```
-🚀 CodeFlux - Modern chat interface with dark theme
-├── Header: Professional gradient header with app branding
-├── Chat Area: Clean message bubbles with syntax highlighting
-├── Input: Modern chat input with emoji support
-└── Sidebar: Feature-rich sidebar with all controls
-```
+### Core Functions
 
-### Key Features Visual
-- **Modern Dark Theme**: Professional appearance with cyan accents
-- **Message Actions**: Like, dislike, and copy functionality
-- **Statistics Dashboard**: Real-time usage metrics
-- **Conversation Manager**: Easy save/load functionality
-
-## 📚 API Reference
-
-### Main Functions
-
-#### `initialize_session_state()`
-Initializes all session state variables with default values.
-
-#### `save_conversation()`
-Saves the current conversation with timestamp and metadata.
-
-#### `format_response_with_mode(prompt, code_gen_mode, explain_mode, debug_mode, response_style)`
-Formats user prompts based on selected AI modes and response styles.
-
-#### `create_sidebar()`
-Renders the feature-rich sidebar with all controls and settings.
+| Function | Description |
+|---|---|
+| `initialize_session_state()` | Sets up all session variables with defaults |
+| `generate_response(prompt, api_key)` | Calls Gemini API with full conversation history |
+| `format_response_with_mode(prompt)` | Prepends system instructions based on active modes |
+| `save_conversation()` | Persists current chat with timestamp and metadata |
+| `load_conversation(conv_id)` | Restores a saved conversation by ID |
+| `export_conversation()` | Serializes current chat to a JSON string |
+| `create_sidebar()` | Renders the full sidebar UI and returns the API key |
+| `display_message(message)` | Renders a chat message with syntax-highlighted code blocks |
 
 ### Session State Variables
 
 | Variable | Type | Description |
-|----------|------|-------------|
-| `messages` | List | Chat message history |
-| `current_model` | String | Active Gemini model |
-| `conversation_title` | String | Current conversation title |
-| `saved_conversations` | Dict | Stored conversation data |
-| `user_preferences` | Dict | User settings and preferences |
+|---|---|---|
+| `messages` | `List[Dict]` | Full chat history with role, content, id, timestamp |
+| `current_model` | `str` | Active Gemini model identifier |
+| `conversation_title` | `str` | Title of the current session |
+| `saved_conversations` | `Dict` | All persisted conversations keyed by ID |
+| `user_preferences` | `Dict` | Theme, response style, and auto-save settings |
+| `code_gen_mode` | `bool` | Code Generation mode toggle |
+| `explain_mode` | `bool` | Explanation mode toggle |
+| `debug_mode` | `bool` | Debug mode toggle |
+| `response_style` | `str` | `"Concise"` / `"Balanced"` / `"Detailed"` |
 
-## 🤝 Contributing
+---
 
-We welcome contributions! Here's how you can help:
+## Contributing
 
-### Development Setup
+Contributions are welcome! To get started:
 
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Make your changes**
-4. **Run tests** (if available)
-5. **Commit your changes**
-   ```bash
-   git commit -m "Add amazing feature"
-   ```
-6. **Push to the branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-7. **Open a Pull Request**
+```bash
+# Fork the repo, then:
+git checkout -b feature/your-feature-name
+# ... make changes ...
+git commit -m "feat: add your feature"
+git push origin feature/your-feature-name
+# Open a pull request
+```
 
-### Contribution Guidelines
-
-- Follow PEP 8 Python style guidelines
-- Add comments for complex functionality
-- Update documentation for new features
-- Test your changes thoroughly
-- Keep commits focused and descriptive
+### Guidelines
+- Follow [PEP 8](https://pep8.org/) style
+- Write clear, descriptive commit messages
+- Update this README if you add or change features
+- Test your changes before submitting
 
 ### Areas for Contribution
+- New AI modes or prompt templates
+- UI/UX improvements
+- Test coverage
+- Internationalization (i18n)
+- Plugin/extension architecture
 
-- 🐛 Bug fixes and improvements
-- ✨ New AI modes and features
-- 🎨 UI/UX enhancements
-- 📚 Documentation improvements
-- 🧪 Test coverage expansion
-- 🌐 Internationalization
+---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
-### Common Issues
+| Problem | Solution |
+|---|---|
+| `Invalid API key` | Verify the key at [Google AI Studio](https://aistudio.google.com/app/apikey) and ensure it's active |
+| Package conflicts | Use a fresh virtual environment |
+| Slow responses | Switch to `gemini-2.0-flash` in the sidebar |
+| App crashes on start | Ensure Python 3.8+ and all dependencies are installed |
 
-#### API Key Problems
-```
-Error: Invalid API key
-Solution: Verify your Gemini API key is correct and active
-```
+For other issues, open a [GitHub Issue](https://github.com/Imaad18/FluxCode/issues).
 
-#### Installation Issues
-```
-Error: Package conflicts
-Solution: Use a fresh virtual environment
-```
+---
 
-#### Performance Issues
-```
-Issue: Slow response times
-Solution: Try switching to a faster Gemini model like gemini-2.0-flash
-```
+## System Requirements
 
-### Getting Help
+- **Python:** 3.8+
+- **RAM:** 512 MB minimum (1 GB+ recommended)
+- **Storage:** ~100 MB
+- **Network:** Required (Gemini API calls)
+- **Browser:** Any modern browser (Chrome, Firefox, Safari, Edge)
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/codeflux/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/codeflux/discussions)
-- **Documentation**: Check this README and inline code comments
+---
 
-## 📋 System Requirements
+## Roadmap
 
-- **Python**: 3.8 or higher
-- **RAM**: 512MB minimum (1GB+ recommended)
-- **Storage**: 100MB for installation
-- **Network**: Internet connection for AI API calls
-- **Browser**: Modern web browser (Chrome, Firefox, Safari, Edge)
+- [ ] Code execution sandbox — run and test code directly in the UI
+- [ ] Team collaboration — share conversations with others
+- [ ] Additional themes and customization options
+- [ ] Voice input via speech-to-text
+- [ ] VS Code extension integration
+- [ ] Plugin system for custom AI modes
 
-## 🔮 Roadmap
+---
 
-### Upcoming Features
+## License
 
-- [ ] **Plugin System**: Extensible architecture for custom AI modes
-- [ ] **Code Execution**: Run and test code directly in the interface
-- [ ] **Collaboration**: Share conversations with team members
-- [ ] **Themes**: Multiple UI themes and customization options
-- [ ] **Voice Input**: Speech-to-text functionality
-- [ ] **Mobile App**: Dedicated mobile application
-- [ ] **Integration**: GitHub, VS Code, and other tool integrations
+This project is licensed under the [MIT License](LICENSE).
 
-## 📄 License
+---
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Acknowledgments
 
-## 🙏 Acknowledgments
-
-- **Google AI Team** for the powerful Gemini AI models
-- **Streamlit Team** for the amazing web framework
-- **Open Source Community** for inspiration and contributions
-- **Contributors** who help make CodeFlux better
+- [Google AI](https://ai.google.dev/) for the Gemini models
+- [Streamlit](https://streamlit.io/) for the web framework
+- All contributors who help improve FluxCode
 
 ---
 
 <div align="center">
 
-**Made with ❤️ by developers, for developers**
+Made with ❤️ for developers
 
-[⭐ Star this repo](https://github.com/yourusername/codeflux) • [🐛 Report Bug](https://github.com/yourusername/codeflux/issues) • [💡 Request Feature](https://github.com/yourusername/codeflux/issues)
+[⭐ Star this repo](https://github.com/Imaad18/FluxCode) · [🐛 Report a bug](https://github.com/Imaad18/FluxCode/issues) · [💡 Request a feature](https://github.com/Imaad18/FluxCode/issues)
 
 </div>
