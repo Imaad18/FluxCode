@@ -24,7 +24,7 @@ def get_logo_base64():
     """Get the FluxCode logo as base64 string"""
     # You'll need to replace this with your actual logo file
     # For now, I'll create a placeholder that you can replace
-    logo_path = "fluxcode_logo.png"  # Replace with your actual logo path
+    logo_path = "banner.jpeg"
     
     try:
         with open(logo_path, "rb") as img_file:
@@ -78,10 +78,10 @@ def create_sidebar_logo():
     logo_base64 = get_logo_base64()
     
     # Determine if it's an image or SVG
-    if logo_base64.startswith('PHN2Zy'):  # SVG starts with '<svg' in base64
-        logo_html = f'<img src="data:image/svg+xml;base64,{logo_base64}" alt="FluxCode Logo" style="width: 120px; height: 120px;">'
+    if logo_base64.startswith('PHN2Zy'):  # SVG fallback
+        logo_html = f'<img src="data:image/svg+xml;base64,{logo_base64}" alt="FluxCode Logo" style="width: 120px; height: 60px; object-fit: cover; border-radius: 8px;">'
     else:
-        logo_html = f'<img src="data:image/png;base64,{logo_base64}" alt="FluxCode Logo" style="width: 120px; height: 120px; border-radius: 12px;">'
+        logo_html = f'<img src="data:image/jpeg;base64,{logo_base64}" alt="FluxCode Logo" style="width: 180px; height: 90px; object-fit: cover; border-radius: 10px;">'
     
     st.sidebar.markdown(
         f"""
