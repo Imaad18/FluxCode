@@ -584,7 +584,7 @@ def initialize_session_state():
         "total_tokens": 0,
         "session_start": datetime.datetime.now(),
         "message_count": 0,
-        "current_model": "gemini-pro",
+        "current_model": "gemini-2.0-flash",
         "conversation_title": "New Conversation",
         "saved_conversations": {},
         "current_conversation_id": None,
@@ -661,18 +661,20 @@ def create_sidebar():
             "Gemini API Key:",
             type="password",
             help="Enter your Google Gemini API key",
-            value=os.getenv("GEMINI_API_KEY", "")
+            value=os.getenv("GOOGLE_API_KEY", "")
         )
-        
+
         model_options = [
-            "gemini-pro",
-            "gemini-pro-vision",
-            "gemini-1.5-pro-latest"
+            "gemini-2.0-flash",
+            "gemini-1.5-pro",
+            "gemini-1.5-flash"
         ]
+        current = st.session_state.current_model
+        default_index = model_options.index(current) if current in model_options else 0
         selected_model = st.selectbox(
             "Model:",
             model_options,
-            index=model_options.index(st.session_state.current_model)
+            index=default_index
         )
         st.session_state.current_model = selected_model
         
@@ -854,15 +856,20 @@ def display_message(message: Dict[str, str]):
                         pass
 
 def generate_response(prompt: str, api_key: str) -> str:
-    """Generate a response from Gemini API"""
+    """Generate a response from Gemini API with full conversation history."""
     try:
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(st.session_state.current_model)
-        
-        # Format prompt with selected modes
+
+        # Build history from previous messages (all except the latest user turn)
+        history = []
+        for msg in st.session_state.messages[:-1]:
+            role = "user" if msg["role"] == "user" else "model"
+            history.append({"role": role, "parts": [msg["content"]]})
+
+        chat = model.start_chat(history=history)
         formatted_prompt = format_response_with_mode(prompt)
-        
-        response = model.generate_content(formatted_prompt)
+        response = chat.send_message(formatted_prompt)
         return response.text
     except Exception as e:
         st.error(f"Error generating response: {str(e)}")
@@ -870,10 +877,10 @@ def generate_response(prompt: str, api_key: str) -> str:
 
 def main():
     """Main application function"""
-    # Initialize the app
+    # Initialize session state first so all downstream functions see correct defaults
+    initialize_session_state()
     inject_modern_css()
     create_app_header()
-    initialize_session_state()
     
     # Create sidebar and get settings
     api_key = create_sidebar()
@@ -918,7 +925,6 @@ def main():
                 
                 # Update stats
                 st.session_state.message_count += 1
-                st.rerun()
 
 if __name__ == "__main__":
     main()
