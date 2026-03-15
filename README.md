@@ -1,6 +1,6 @@
 <div align="center">
 
-![FluxCode Banner](https://github.com/user-attachments/assets/210ed1ec-03b7-49d1-97ea-e991b92ec4a3)
+![FluxCode Banner](banner.jpeg)
 
 # FluxCode — AI Code Assistant
 
